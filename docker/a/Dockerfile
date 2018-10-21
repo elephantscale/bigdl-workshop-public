@@ -27,8 +27,8 @@ ENV SPARK_HOME          ${INSTALL_DIR}/spark
 ENV ANALYTICS_ZOO_HOME  ${INSTALL_DIR}/analytics-zoo
 ENV JAVA_HOME           ${INSTALL_DIR}/jdk
 ENV PATH                ${INSTALL_DIR}/spark/bin:${JAVA_HOME}/bin:$PATH
-# working directory
-ENV                     WORKING_DIR ${HOME}/work
+ENV WORKING_DIR         ${HOME}/work
+ENV TENSORBOARD_DIR     ${WORKING_DIR}/tensorboard-logs
 ## --- end CONFIG
 
 
@@ -102,19 +102,16 @@ RUN /bin/bash -c "source activate py35 && \
     pip install  tensorboard && \
     source deactivate"
 
-## source python 3.5
-RUN echo "source activate py35" >> ~/.bashrc
-
 ## ----- custom installs ----
 USER root
 
 RUN mkdir -p ${INSTALL_DIR}
 ## ---- install Oracle JDK -----
-RUN wget 'http://ftp.osuosl.org/pub/funtoo/distfiles/oracle-java/jdk-8u152-linux-x64.tar.gz' && \
-    gunzip jdk-8u152-linux-x64.tar.gz && \
-    tar -xf jdk-8u152-linux-x64.tar -C ${INSTALL_DIR} && \
-    rm jdk-8u152-linux-x64.tar && \
-    ln -s ${INSTALL_DIR}/jdk1.8.0_152 ${JAVA_HOME}
+RUN wget 'https://s3.amazonaws.com/elephantscale-public/downloads/jdk-8u181-linux-x64.tar.gz' && \
+    gunzip jdk-8u181-linux-x64.tar.gz && \
+    tar -xf jdk-8u181-linux-x64.tar -C ${INSTALL_DIR} && \
+    rm jdk-8u181-linux-x64.tar && \
+    ln -s ${INSTALL_DIR}/jdk1.8.0_181 ${JAVA_HOME}
 
 
 ## ----- install spark -------
@@ -145,9 +142,10 @@ RUN cd ${INSTALL_DIR} && ./download-analytics-zoo.sh
 RUN echo "${NB_USER} ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 # this is where volumes will be mounted
-RUN mkdir /work
-## setup working directory to map with host OS
-RUN rm -rf ${WORKING_DIR} && ln -s /work  ${WORKING_DIR}
+RUN mkdir -p ${WORKING_DIR}
+
+# create tensorboard logs dir
+RUN mkdir -p ${TENSORBOARD_DIR}
 
 
 ## --- copy files last, so not to bust the cache ---
@@ -160,6 +158,9 @@ COPY ./run-jupyter-with-bigdl.sh  $HOME/
 COPY ./run-jupyter-with-zoo.sh  $HOME/
 RUN sudo chmod +x  $HOME/*.sh
 RUN sudo chown $NB_USER  $HOME/*
+
+## source python 3.5 when Bash shell starts
+RUN echo  "\nsource activate py35\n" >> ~/.bashrc
 
 ## finally switch back to jovyan to avoid accidental container runs as root
 USER $NB_USER

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# activate py35 environment
+#source activate py35
+#conda info -e
+
+# run tensorboard
+tensorboard --logdir=${TENSORBOARD_DIR} >> ~/tensorboard.out  2>&1 &
+
+
 
 ## ---- run time config -----
 RUNTIME_DRIVER_CORES=4
@@ -43,7 +51,7 @@ echo "### PYSPARK_PYTHON=$PYSPARK_PYTHON"
 echo "### PYSPARK_DRIVER_PYTHON=$PYSPARK_DRIVER_PYTHON"
 # this starts the notebook without a security token
 #export PYSPARK_DRIVER_PYTHON_OPTS="notebook --notebook-dir=./ --ip=* --no-browser --NotebookApp.token=''"
-export PYSPARK_DRIVER_PYTHON_OPTS="notebook --notebook-dir=./ --ip=* --no-browser"
+export PYSPARK_DRIVER_PYTHON_OPTS="notebook --notebook-dir=./ --ip='0.0.0.0' --no-browser"
 
 ${SPARK_HOME}/bin/pyspark \
   --master local[*] \
