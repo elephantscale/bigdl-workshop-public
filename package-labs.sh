@@ -21,7 +21,7 @@ mv -f notebooks/a.html  notebooks/README.html
 
 zip_file_name=$(basename `pwd`)
 rm -f *.zip
-#zip -x '*.DS_Store*'  -x "*.log" -x '*.git*'  -x '*zip*'  -x '*gz*' -x '*news20/glove.6B*' -x '*metastore_db*' -x '*out' -x '*.ipynb_checkpoints*' -x '*not-using*'  -x '*.jpg' -x '*.png' -x 'notebooks/solutions/08-transfer-learning/8.2-tensorflow-import/models*'  -r "$zip_file_name" .
+zip -x '*.DS_Store*'  -x "*.log" -x '*.git*'  -x '*zip*'  -x '*gz*' -x '*news20/glove.6B*' -x '*metastore_db*' -x '*out' -x '*.ipynb_checkpoints*' -x '*not-using*'  -x '*.jpg' -x '*.png'   -r "$zip_file_name" .
 
 
-git archive --format=zip HEAD -o bigdl-labs.zip
+#git archive --format=zip HEAD -o bigdl-labs.zip
